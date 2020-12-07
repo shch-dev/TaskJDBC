@@ -13,7 +13,9 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        try (Connection connection = Util.Connection()) {
+        Connection connection = Util.Connection();
+        try {
+            connection.setAutoCommit(false);
             connection
                     .createStatement()
                     .executeUpdate("CREATE TABLE IF NOT EXISTS `first`.`users` (\n" +
@@ -22,57 +24,132 @@ public class UserDaoJDBCImpl implements UserDao {
                             "  `lastName` VARCHAR(45) NOT NULL,\n" +
                             "  `age` SMALLINT NOT NULL,\n" +
                             "  PRIMARY KEY (`id`));");
+            connection.commit();
 
         } catch (SQLException ex) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             System.out.println("Ошибка в createUsersTable");
             ex.printStackTrace();
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException exception) {
+                    System.out.println("Ошибка в connection.close();");
+                    exception.printStackTrace();
+
+                }
+            }
         }
     }
 
     public void dropUsersTable() {
-        try (Connection connection = Util.Connection()) {
+        Connection connection = Util.Connection();
+        try {
+            connection.setAutoCommit(false);
             connection
                     .createStatement()
                     .execute("DROP TABLE IF EXISTS users");
+            connection.commit();
         } catch (SQLException ex) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             System.out.println("Ошибка в dropUsersTable");
             ex.printStackTrace();
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException exception) {
+                    System.out.println("Ошибка в connection.close();");
+                    exception.printStackTrace();
+
+                }
+            }
         }
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        try (Connection connection = Util.Connection()) {
+        Connection connection = Util.Connection();
+        PreparedStatement preparedStatement = null;
+        try {
+            connection.setAutoCommit(false);
+
             User user = new User(name, lastName, age);
 
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users (name, lastName, age) VALUES(?, ?, ?);");
+            preparedStatement = connection.prepareStatement("INSERT INTO users (name, lastName, age) VALUES(?, ?, ?);");
             preparedStatement.setString(1, user.getName());
             preparedStatement.setString(2, user.getLastName());
             preparedStatement.setByte(3, user.getAge());
 
             preparedStatement.executeUpdate();
+            System.out.println("User с именем – " + user.getName() + "  добавлен в базу данных");
+            connection.commit();
         } catch (SQLException ex) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             System.out.println("Ошибка в saveUser");
             ex.printStackTrace();
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException exception) {
+                    System.out.println("Ошибка в connection.close();");
+                    exception.printStackTrace();
+                }
+            }
         }
     }
 
     public void removeUserById(long id) {
-        try (Connection connection = Util.Connection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users WHERE id = ?");
+        Connection connection = Util.Connection();
+        PreparedStatement preparedStatement = null;
+        try {
+            connection.setAutoCommit(false);
+
+            preparedStatement = connection.prepareStatement("DELETE FROM users WHERE id = ?");
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
 
-
+            connection.commit();
         } catch (SQLException ex) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             System.out.println("Ошибка в removeUserById");
             ex.printStackTrace();
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException exception) {
+                    System.out.println("Ошибка в connection.close();");
+                    exception.printStackTrace();
+                }
+            }
         }
     }
 
     public List<User> getAllUsers() {
         List<User> usersList = new ArrayList<>();
 
-        try (Connection connection = Util.Connection()) {
+        Connection connection = Util.Connection();
+        try {
+            connection.setAutoCommit(false);
+
             ResultSet resultSet = connection
                     .createStatement()
                     .executeQuery("SELECT id, name, lastName, age FROM users");
@@ -87,19 +164,43 @@ public class UserDaoJDBCImpl implements UserDao {
 
                 usersList.add(user);
             }
+            connection.commit();
         } catch (SQLException ex) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             System.out.println("Ошибка в getAllUsers");
             ex.printStackTrace();
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException exception) {
+                    System.out.println("Ошибка в connection.close();");
+                    exception.printStackTrace();
+
+                }
+            }
         }
         return usersList;
     }
 
     public void cleanUsersTable() {
-        try (Connection connection = Util.Connection()) {
+        Connection connection = Util.Connection();
+        try {
+            connection.setAutoCommit(false);
             connection
                     .createStatement()
                     .execute("DELETE FROM users");
+            connection.commit();
         } catch (SQLException ex) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             System.out.println("Ошибка в cleanUsersTable");
             ex.printStackTrace();
         }

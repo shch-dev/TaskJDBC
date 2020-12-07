@@ -26,7 +26,7 @@ public class Main {
         userList.forEach(System.out::println);
 
         //Очистка таблицы User(ов)
-        userService.cleanUsersTable();
+         userService.cleanUsersTable();
 
         //Удаление таблицы
         userService.dropUsersTable();
